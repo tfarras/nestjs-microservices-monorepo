@@ -1,0 +1,68 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+  logger_service:
+    build:
+      dockerfile: ops/Dockerfile
+      context: ../
+      target: development
+    volumes:
+      - ../:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - ./logger/.env
+    command: npm run test:e2e
+    depends_on:
+      - mongo
+      - nats
+
+  # user_service:
+  #   build:
+  #     dockerfile: ops/Dockerfile
+  #     context: ../
+  #     target: development
+  #   volumes:
+  #     - ../:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   ports:
+  #     - 3020:3000
+  #   env_file:
+  #     - ./user/.env
+  #   command: npm run start:user
+  #   depends_on:
+  #     - mongo
+  #     - nats
+  #     - logger_service
+
+  # auth_service:
+  #   build:
+  #     dockerfile: ops/Dockerfile
+  #     context: ../
+  #     target: development
+  #   volumes:
+  #     - ../:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   env_file:
+  #     - ./auth/.env
+  #   command: npm run start:auth
+  #   ports:
+  #     - 3010:3000
+  #   depends_on:
+  #     - mongo
+  #     - nats
+  #     - logger_service
+
+  mongo:
+    image: mongo
+    restart: always
+    hostname: mongo
+    ports:
+      - 27017:27017
+
+  nats:
+    image: nats
+    hostname: nats
+    ports:
+      - '8222:8222'
+      - '4222:4222'
